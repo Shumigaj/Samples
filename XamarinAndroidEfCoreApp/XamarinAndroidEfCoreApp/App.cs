@@ -43,7 +43,7 @@ namespace XamarinAndroidEfCoreApp
         private void InitializeDatabase(string databaseLocationPath, string databaseName)
         {
             var logContext = GetDbContext(databaseLocationPath, databaseName);
-            logContext.Database.EnsureCreated();
+            logContext.Database.EnsureCreated();// throws exception because CommonLog has field with string type
         }
 
         private void ExecuteInsertRequest(string databaseLocationPath, string databaseName)
