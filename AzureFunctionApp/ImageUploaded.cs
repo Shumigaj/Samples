@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Azure.CognitiveServices.Vision.Face;
+using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.ProjectOxford.Face;
-using Microsoft.ProjectOxford.Face.Contract;
 using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace AzureFunctionApp
@@ -16,7 +17,7 @@ namespace AzureFunctionApp
             [BlobTrigger("container-name/{name}", Connection = "AccountStorageConnection")] CloudBlockBlob blob,
             string name, ILogger log, ExecutionContext context)
         {
-            log.LogInformation($"C# Blob trigger function Processed blob\n Name:{blob.Name} \n Size: {blob.Properties.Length} Bytes");
+            log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {blob.Properties.Length} Bytes");
 
             var blobUrl = $"{blob.Uri}{GetSas(blob)}";
             log.LogInformation($"Blob URL: {blobUrl}");
@@ -25,12 +26,13 @@ namespace AzureFunctionApp
             {
                 var facesInformation = await GetAnalisysAsync(blobUrl, context).ConfigureAwait(false);
 
-                log.LogInformation("Image: '{imageName}' has {PeopleOnImage}", blob.Name, facesInformation.Length);
+                log.LogInformation("Image: '{imageName}' has {PeopleOnImage}", name, facesInformation.Count);
 
-                for (int i = 0; i < facesInformation.Length; i++)
+                for (var i = 0; i < facesInformation.Count; i++)
                 {
-                    log.LogInformation("Image: '{imageName}' person #{PersonOnImage}: {Gender}, {Age}, {Glasses}, {Emotion}",
-                        blob.Name,
+                    log.LogInformation("Image: '{imageName}' person #{PersonOnImage}: Gender: {Gender}, Age: {Age}, Glasses: {Glasses}, Emotion: {Emotion}",
+                        name,
+                        i,
                         facesInformation[i].FaceAttributes.Gender,
                         facesInformation[i].FaceAttributes.Age,
                         facesInformation[i].FaceAttributes.Glasses,
@@ -43,7 +45,7 @@ namespace AzureFunctionApp
             }
         }
 
-        public static Task<Face[]> GetAnalisysAsync(string imageUrl, ExecutionContext context)
+        public static Task<IList<DetectedFace>> GetAnalisysAsync(string imageUrl, ExecutionContext context)
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(context.FunctionAppDirectory)
@@ -51,11 +53,14 @@ namespace AzureFunctionApp
                 .AddEnvironmentVariables()
                 .Build();
 
-            var client = new FaceServiceClient(config["FaceCognitiveServiceKey"], config["FaceCognitiveServiceRoot"]);
+            var client = new FaceClient(new ApiKeyServiceClientCredentials(config["FaceCognitiveServiceKey"])) 
+            { 
+                Endpoint = config["FaceCognitiveServiceRoot"] 
+            };
 
-            var attributes = new[] { FaceAttributeType.Gender };
+            var attributes = new List<FaceAttributeType?> { FaceAttributeType.Age };
 
-            return client.DetectAsync(imageUrl, false, false, attributes);
+            return client.Face.DetectWithUrlAsync(imageUrl, false, false, returnFaceAttributes: attributes);
         }
 
         public static string GetSas(CloudBlockBlob blob)
