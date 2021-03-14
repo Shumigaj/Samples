@@ -15,7 +15,10 @@ namespace AzureFunctionApp
         [FunctionName("ImageUploaded")]
         public static async void Run(
             [BlobTrigger("container-name/{name}", Connection = "AccountStorageConnection")] CloudBlockBlob blob,
-            string name, ILogger log, ExecutionContext context)
+            string name, ILogger log, ExecutionContext context,
+
+            [CosmosDB("azureeducationcosmosdb", "images", ConnectionStringSetting ="CosmosDBConnection")]
+            IAsyncCollector<FaceAnalysisResults> result)
         {
             log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {blob.Properties.Length} Bytes");
 
@@ -38,6 +41,8 @@ namespace AzureFunctionApp
                         facesInformation[i].FaceAttributes.Glasses,
                         facesInformation[i].FaceAttributes.Emotion);
                 }
+
+                await result.AddAsync(new FaceAnalysisResults { DetectedFaces = facesInformation, ImageId = name });
             }
             catch (Exception e)
             {
