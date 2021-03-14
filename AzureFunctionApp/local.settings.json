@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AccountStorageConnection": "DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account key};EndpointSuffix=core.windows.net",
+    "FaceCognitiveServiceKey": "21c277e5f5fb42a398f5976f1f4680b3",
+    "FaceCognitiveServiceRoot": "https://azureeducationface.cognitiveservices.azure.com"
+  }
+}

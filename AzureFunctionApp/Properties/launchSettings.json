@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AzureFunctionApp": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 7074"
+    }
+  }
+}
