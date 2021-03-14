@@ -1,0 +1,48 @@
+﻿@model IList<Course>
+@{
+    ViewData["Title"] = "Courses Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">All cources</h1>
+    @if (Model.Any())
+    {
+        <table class="table">
+            @foreach (var cource in Model)
+            {
+                <tr>
+                    <td>@cource.Id</td>
+                    <td>@cource.Title</td>
+                    <td>
+                        <table class="table table-condenced">
+                            @foreach (var module in cource.Modules)
+                            {
+                                <tr>
+                                    <td>@module.Title</td>
+                                    <td>
+                                        <table class="table table-condenced">
+                                            @foreach (var clip in module.Clips)
+                                            {
+                                                <tr>
+                                                    <td>@clip.Name</td>
+                                                    <td>@clip.Length</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <div>No cources to display</div>
+        <form asp-area="" asp-controller="Courses" asp-action="Generate">
+            <input type="submit" class="btn btn-primary" value="Generage cource" />
+        </form>
+    }
+</div>
