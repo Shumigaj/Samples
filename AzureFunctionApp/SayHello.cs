@@ -16,6 +16,7 @@ namespace AzureFunctionApp
     /// <summary>
     /// HttpTrigger Function available for Anonymous user
     /// http://localhost:7074/api/SayHello?name=Shumigaj
+    /// https://azureeducationfunction.azurewebsites.net/api/SayHello?name=Pavel?name=Shumigaj
     /// </summary>
     public static class SayHello
     {
